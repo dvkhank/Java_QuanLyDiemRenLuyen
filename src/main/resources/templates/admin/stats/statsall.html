@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="admin/fragments/head :: head">Thống kê toàn trường</head>
+    <body class="hold-transition skin-blue sidebar-mini">
+        <!-- Site wrapper -->
+        <div class="wrapper">
+            <div th:replace="admin/fragments/header :: header"></div>
+            <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+            <div class="content-wrapper">
+                <section class="content-header">
+                    <h1 th:text="#{statistic}"></h1>
+                </section>
+                <section class="content">
+                    <form  method="post" th:action="@{/changeLanguage}">
+                        <select name="lang" onchange="this.form.submit()">
+                            <option value="en" th:selected="${#locale.language == 'en'}">English</option>
+                            <option value="vi" th:selected="${#locale.language == 'vi'}">Vietnamese</option>
+                            <!-- Thêm các ngôn ngữ khác nếu cần -->
+                        </select>
+                    </form>
+                    <div class="box">
+                        <div class="box-body">
+                            <hr>
+                            <h3 id="statsbytruong" class="text-center text-info" th:text="#{statisticbydepartment}"></h3>
+                            <h4 id="achivement" class="text-center text-info">Achiement: <span th:text="${label}"></span></h4>
+
+                            <div class="row">
+                                <div class="col-md-5 col-12">
+                                    <form>
+                                        <div class="form-floating">
+                                            <label for="THANHTHICH" class="form-label" th:text="#{choose} + ' ' + #{achievement}"></label>
+                                            <select class="form-select" id="thanhtich" name="thanhtich">
+                                                <option value="xuatsac" th:text="#{excellent}">Xuất sắc</option>
+                                                <option value="gioi" th:text="#{verygood}">Giỏi</option>
+                                                <option value="kha" th:text="#{good}">Khá</option>
+                                                <option value="trungbinh" th:text="#{trungbinh}">Trung bình</option>
+                                                <option value="yeu" th:text="#{yeu}">Yếu</option>
+                                                <option value="kem" th:text="#{kem}">Kém</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-floating">
+                                            <label for="namHoc-khoa" class="form-label" th:text="#{hknm}"></label>
+
+                                            <select class="form-select" id="namHoc-khoa" name="hockinamhocId">
+                                                <option th:each="hockinamhoc : ${hockinamhocs}" th:value="${hockinamhoc.id}" th:text="'Học kì: ' + ${hockinamhoc.hocKiId.hocKi} + ' - Năm học: ' + ${hockinamhoc.namHocId.namHoc}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="form-floating mb-3 mt-3">
+                                            <button class='btn btn-success' th:text="#{filter}">Lọc</button>
+                                        </div>
+                                    </form>
+                                    <table class="table" id="data-table1">
+                                        <thead>
+                                            <tr>
+                                                <th th:text="#{department}">Khoa</th>
+                                                <th th:text="#{number}">Số lượng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="stats : ${statsKhoa}">
+                                                <td th:text="${stats[0]}"></td>
+                                                <td th:text="${stats[1]}"></td> 
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-7 col-12">
+                                    <canvas width="400" height="200" id="myChart"></canvas>
+                                </div>
+                            </div>
+                            <button class="btn btn-success mb-3" onclick="convertToImageAndGeneratePDF1()" th:text="#{xuat} + ' PDF'">Xuất PDF</button>
+                        </div>
+                        <div class="box-footer"></div>
+                    </div>
+                </section>
+            </div>
+            <div th:replace="admin/fragments/footer :: footer"></div>
+        </div>
+        <div th:replace="admin/fragments/script :: script"></div>
+    </body>
+</html>
+<script src="/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script th:inline="javascript">
+
+                                /*<![CDATA[*/
+                                let statsKhoa = /*[[${statsKhoa}]]*/;
+                                /*]]>*/
+
+                                let labels = [];
+                                let data = [];
+
+                                statsKhoa.forEach(function (stat) {
+                                    labels.push(stat[0]); // Tên Khoa
+                                    data.push(stat[1]); // Số lượng
+                                });
+
+                                console.log("Labels:", labels);
+                                console.log("Data:", data);
+                                ;
+
+                                window.onload = function () {
+                                    let ctx1 = document.getElementById("myChart");
+                                    drawChartTheoKhoa(ctx1, labels, data, "THỐNG KÊ TOÀN TRƯỜNG");
+                                };
+
+
+                                async function convertToImageAndGeneratePDF1() {
+                                    const {jsPDF} = window.jspdf;
+                                    const pdf = new jsPDF();
+                                    const table = document.getElementById('data-table1');
+                                    const chart = document.getElementById('myChart');
+                                    const statisticHeader = document.getElementById('statsbytruong');
+                                    const achievement = document.getElementById('achivement');
+
+                                    // Capture each part as a canvas
+                                    const headerCanvas = await html2canvas(statisticHeader);
+                                    const headerImage = headerCanvas.toDataURL('image/png');
+                                    const headerHeight = headerCanvas.height * 180 / headerCanvas.width; // Calculate height of header
+
+                                    const subheaderCanvas = await html2canvas(achievement);
+                                    const subheaderImage = subheaderCanvas.toDataURL('image/png');
+                                    const subheaderHeight = subheaderCanvas.height * 180 / subheaderCanvas.width; // Calculate height of subheader
+
+                                    const tableCanvas = await html2canvas(table);
+                                    const tableImage = tableCanvas.toDataURL('image/png');
+                                    const tableHeight = tableCanvas.height * 180 / tableCanvas.width; // Calculate height of table
+
+                                    const chartCanvas = await html2canvas(chart);
+                                    const chartImage = chartCanvas.toDataURL('image/png');
+                                    const chartHeight = chartCanvas.height * 180 / chartCanvas.width; // Calculate height of chart
+
+                                    // Define margins and spacing
+                                    const margin = 10; // Margin from the top
+                                    const spacing = 10; // Space between elements
+
+                                    // Add images to PDF
+                                    pdf.addImage(headerImage, 'PNG', 10, margin, 180, headerHeight);
+                                    pdf.addImage(subheaderImage, 'PNG', 10, margin + headerHeight + spacing, 180, subheaderHeight);
+
+                                    pdf.addImage(tableImage, 'PNG', 10, margin + headerHeight + subheaderHeight + 2 * spacing, 180, tableHeight);
+                                    pdf.addImage(chartImage, 'PNG', 10, margin + headerHeight + subheaderHeight + tableHeight + 3 * spacing, 180, chartHeight);
+
+                                    pdf.save('report.pdf');
+                                }
+
+</script>

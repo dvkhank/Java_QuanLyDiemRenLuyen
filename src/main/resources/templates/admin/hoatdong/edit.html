@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <head th:replace="admin/fragments/head :: head"></head>
+    <body class="hold-transition skin-blue sidebar-mini">
+        <!-- Site wrapper -->
+        <div class="wrapper">
+
+            <div th:replace="admin/fragments/header :: header"></div>
+
+            <!-- =============================================== -->
+
+            <!-- Left side column. contains the sidebar -->
+            <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+
+            <!-- =============================================== -->
+
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper">
+
+
+                <!-- Main content -->
+                <section class="content">
+                    <h1>Thay đổi thông tin hoạt động</h1>
+                    <form th:action="@{/admin/sua-hoatdong}" th:object="${hoatdong}" method="post">
+                        <input type="hidden" class="form-control" th:field="*{id}">
+                        <div class="form-group">
+                            <label for="email">Tên</label>
+                            <input type="text" class="form-control" id="email" th:field="*{ten}">
+                            <div th:if="${#fields.hasErrors('ten')}" class="alert alert-danger">
+                                <span th:each="error : ${#fields.errors('ten')}" th:text="${error}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pwd">Mô tả</label>
+                            <input type="text" class="form-control" id="pwd" th:field="*{moTa}">
+                            <div th:if="${#fields.hasErrors('moTa')}" class="alert alert-danger">
+                                    <span th:each="error : ${#fields.errors('moTa')}" th:text="${error}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="diem">Điểm</label>
+                            <input type="number" class="form-control" id="diem" th:field="*{diem}">
+                            <div th:if="${#fields.hasErrors('diem')}" class="alert alert-danger">
+                                    <span th:each="error : ${#fields.errors('diem')}" th:text="${error}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phi">Phí</label>
+                            <input type="number" class="form-control" id="phi" th:field="*{phi}">
+                        </div>
+                        <div class="form-group">
+                            <label for="ngay">Ngày thực hành</label>
+                            <input type="date" class="form-control" id="ngay" th:field="*{ngay}">
+                            <div th:if="${#fields.hasErrors('ngay')}" class="alert alert-danger">
+                                    <span th:each="error : ${#fields.errors('ngay')}" th:text="${error}"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="dieu">Điều</label>
+                            <select class="form-control" id="dieu" th:field="*{dieuId.id}">
+                                <option value="" disabled selected>Chọn điều</option>
+                                <option th:each="dieu : ${dieus}" 
+                                        th:value="${dieu.id}"
+                                        th:text="${dieu.dieu}">
+                                </option>
+                            </select>
+                         
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hockinamhoc">Học kì - Năm học</label>
+                            <select class="form-control" id="hockinamhoc" th:field="*{hocKiNamHocId.id}">
+                                <option value="" disabled selected>Chọn học kì - năm học</option>
+                                <option th:each="hocKi : ${hockinamhocs}" 
+                                        th:value="${hocKi.id}" 
+                            <option th:text="'Học kì: ' + ${hocKi.hocKiId.hocKi} + ' - Năm học: ' + ${hocKi.namHocId.namHoc}"</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="khoa">Khoa</label>
+                        <select class="form-control" id="khoa" th:field="*{khoaId.id}">
+                            <option value="" disabled selected>Chọn khoa</option>
+                            <option th:each="khoa : ${khoas}" 
+                                    th:value="${khoa.id}" 
+                                    th:text="${khoa.ten}"></option>
+                        </select>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-default">Thay đổi</button>
+                </form>
+
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <div th:replace="admin/fragments/footer :: footer"></div>
+
+    </div>
+    <!-- ./wrapper -->
+
+    <div th:replace="admin/fragments/script :: script"></div>
+
+</body>
+</html>
